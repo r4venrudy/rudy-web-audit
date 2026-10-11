@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rudy-web-audit"
+version = "1.0.0"
+description = "HTTP, TLS, redirect, cookie and security-header auditing with offline reports and baseline comparison."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "r4venrudy"}]
+keywords = ["security", "http", "tls", "headers", "osint", "audit"]
+classifiers = ["Programming Language :: Python :: 3", "Operating System :: OS Independent"]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/r4venrudy/rudy-web-audit"
+Issues = "https://github.com/r4venrudy/rudy-web-audit/issues"
+
+[project.scripts]
+rudy-web-audit = "rudy_web_audit.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["rudy_web_audit*"]

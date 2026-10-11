@@ -1,0 +1,340 @@
+{
+  "schema_version": 1,
+  "tool": "Rudy Web Audit",
+  "version": "1.0.0",
+  "generated_at": "2026-10-11T12:00:00+02:00 (synthetic example)",
+  "targets": [
+    {
+      "target": "https://app.example.test/",
+      "target_id": "bf1f3084b9b701180f668837992f2c478310ba2adfc24477fa83d9c92a3b66a0",
+      "hops": [
+        {
+          "url": "https://app.example.test/",
+          "status": 200,
+          "ip": "192.0.2.10",
+          "elapsed_ms": 84.3,
+          "headers": [
+            [
+              "Content-Type",
+              "text/html"
+            ],
+            [
+              "X-Content-Type-Options",
+              "nosniff"
+            ],
+            [
+              "Strict-Transport-Security",
+              "max-age=31536000"
+            ],
+            [
+              "Referrer-Policy",
+              "strict-origin-when-cross-origin"
+            ],
+            [
+              "Content-Security-Policy",
+              "[policy omitted; see derived checks]"
+            ],
+            [
+              "Set-Cookie",
+              "session=[redacted]; samesite=none"
+            ]
+          ],
+          "tls": {
+            "verified": true,
+            "version": "TLSv1.3",
+            "cipher": "TLS_AES_256_GCM_SHA384",
+            "expires_at": "2030-01-01T00:00:00+00:00",
+            "days_remaining": 70,
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        }
+      ],
+      "checks": [
+        {
+          "id": "TLS.VERIFIED",
+          "title": "Verified TLS connection",
+          "status": "pass",
+          "severity": "high",
+          "evidence": "TLSv1.3 / TLS_AES_256_GCM_SHA384",
+          "recommendation": "",
+          "hop": 0
+        },
+        {
+          "id": "TLS.EXPIRY",
+          "title": "Certificate lifetime",
+          "status": "pass",
+          "severity": "medium",
+          "evidence": "70 complete days remain.",
+          "recommendation": "",
+          "hop": 0
+        },
+        {
+          "id": "COOKIE.SECURE",
+          "title": "Cookie Secure attribute",
+          "status": "fail",
+          "severity": "medium",
+          "evidence": "session",
+          "recommendation": "Set Secure for cookies that must only travel over HTTPS.",
+          "hop": 0
+        },
+        {
+          "id": "COOKIE.HTTPONLY",
+          "title": "Cookie JavaScript access",
+          "status": "warn",
+          "severity": "low",
+          "evidence": "session",
+          "recommendation": "Use HttpOnly for session cookies; application-readable cookies may intentionally omit it.",
+          "hop": 0
+        },
+        {
+          "id": "COOKIE.SAMESITE",
+          "title": "Cookie SameSite attribute",
+          "status": "pass",
+          "severity": "low",
+          "evidence": "session: none",
+          "recommendation": "Choose an explicit SameSite policy appropriate to the application.",
+          "hop": 0
+        },
+        {
+          "id": "COOKIE.NONE_SECURE",
+          "title": "SameSite=None requires Secure",
+          "status": "fail",
+          "severity": "medium",
+          "evidence": "session",
+          "recommendation": "Add Secure to the cookie.",
+          "hop": 0
+        },
+        {
+          "id": "HTTP.HTTPS",
+          "title": "Final response uses HTTPS",
+          "status": "pass",
+          "severity": "high",
+          "evidence": "HTTPS",
+          "recommendation": "Serve the site over HTTPS and redirect HTTP entry points.",
+          "hop": 0
+        },
+        {
+          "id": "HEADER.HSTS",
+          "title": "HTTP Strict Transport Security",
+          "status": "pass",
+          "severity": "medium",
+          "evidence": "max-age=31536000",
+          "recommendation": "Set a positive HSTS max-age; one year is a common long-term goal. Assess subdomains before includeSubDomains.",
+          "hop": 0
+        },
+        {
+          "id": "HEADER.CSP",
+          "title": "Enforced script policy",
+          "status": "pass",
+          "severity": "medium",
+          "evidence": "Enforcing script/default source policy found.",
+          "recommendation": "Deploy an enforcing CSP after testing in report-only mode. Prefer nonces or hashes for scripts.",
+          "hop": 0
+        },
+        {
+          "id": "CSP.BROAD_SCRIPT",
+          "title": "Broad CSP script sources",
+          "status": "warn",
+          "severity": "medium",
+          "evidence": "script-src: *, 'unsafe-inline'",
+          "recommendation": "Review broad script sources. Multiple CSP policies intersect; this is a policy-level heuristic.",
+          "hop": 0
+        },
+        {
+          "id": "CSP.BROAD_SCRIPT",
+          "title": "Broad CSP script sources",
+          "status": "warn",
+          "severity": "medium",
+          "evidence": "script-src-elem: *, 'unsafe-inline'",
+          "recommendation": "Review broad script sources. Multiple CSP policies intersect; this is a policy-level heuristic.",
+          "hop": 0
+        },
+        {
+          "id": "HEADER.FRAMING",
+          "title": "Framing protection",
+          "status": "pass",
+          "severity": "medium",
+          "evidence": "Restrictive frame-ancestors or X-Frame-Options found.",
+          "recommendation": "Use CSP frame-ancestors or X-Frame-Options where the page should not be embedded.",
+          "hop": 0
+        },
+        {
+          "id": "HEADER.NOSNIFF",
+          "title": "MIME sniffing protection",
+          "status": "pass",
+          "severity": "low",
+          "evidence": "nosniff",
+          "recommendation": "Add X-Content-Type-Options: nosniff.",
+          "hop": 0
+        },
+        {
+          "id": "HEADER.REFERRER",
+          "title": "Referrer privacy policy",
+          "status": "pass",
+          "severity": "low",
+          "evidence": "strict-origin-when-cross-origin",
+          "recommendation": "Choose an explicit Referrer-Policy, such as strict-origin-when-cross-origin.",
+          "hop": 0
+        }
+      ],
+      "error": null,
+      "score": 74,
+      "grade": "C"
+    },
+    {
+      "target": "https://api.example.test/status",
+      "target_id": "9d878893cf931d929e0e4b231235adb6e38661868880e5816d02d1e3511338ba",
+      "hops": [
+        {
+          "url": "https://api.example.test/status",
+          "status": 200,
+          "ip": "192.0.2.10",
+          "elapsed_ms": 84.3,
+          "headers": [
+            [
+              "Content-Type",
+              "application/json"
+            ],
+            [
+              "X-Content-Type-Options",
+              "nosniff"
+            ],
+            [
+              "Strict-Transport-Security",
+              "max-age=31536000"
+            ],
+            [
+              "Referrer-Policy",
+              "strict-origin-when-cross-origin"
+            ],
+            [
+              "Access-Control-Allow-Origin",
+              "*"
+            ]
+          ],
+          "tls": {
+            "verified": true,
+            "version": "TLSv1.3",
+            "cipher": "TLS_AES_256_GCM_SHA384",
+            "expires_at": "2030-01-01T00:00:00+00:00",
+            "days_remaining": 70,
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        }
+      ],
+      "checks": [
+        {
+          "id": "TLS.VERIFIED",
+          "title": "Verified TLS connection",
+          "status": "pass",
+          "severity": "high",
+          "evidence": "TLSv1.3 / TLS_AES_256_GCM_SHA384",
+          "recommendation": "",
+          "hop": 0
+        },
+        {
+          "id": "TLS.EXPIRY",
+          "title": "Certificate lifetime",
+          "status": "pass",
+          "severity": "medium",
+          "evidence": "70 complete days remain.",
+          "recommendation": "",
+          "hop": 0
+        },
+        {
+          "id": "HTTP.HTTPS",
+          "title": "Final response uses HTTPS",
+          "status": "pass",
+          "severity": "high",
+          "evidence": "HTTPS",
+          "recommendation": "Serve the site over HTTPS and redirect HTTP entry points.",
+          "hop": 0
+        },
+        {
+          "id": "HEADER.HSTS",
+          "title": "HTTP Strict Transport Security",
+          "status": "pass",
+          "severity": "medium",
+          "evidence": "max-age=31536000",
+          "recommendation": "Set a positive HSTS max-age; one year is a common long-term goal. Assess subdomains before includeSubDomains.",
+          "hop": 0
+        },
+        {
+          "id": "HEADER.CSP",
+          "title": "HTML-specific policy checks",
+          "status": "info",
+          "severity": "info",
+          "evidence": "Response is not declared as HTML; script and framing checks skipped.",
+          "recommendation": "",
+          "hop": 0
+        },
+        {
+          "id": "HEADER.NOSNIFF",
+          "title": "MIME sniffing protection",
+          "status": "pass",
+          "severity": "low",
+          "evidence": "nosniff",
+          "recommendation": "Add X-Content-Type-Options: nosniff.",
+          "hop": 0
+        },
+        {
+          "id": "HEADER.REFERRER",
+          "title": "Referrer privacy policy",
+          "status": "pass",
+          "severity": "low",
+          "evidence": "strict-origin-when-cross-origin",
+          "recommendation": "Choose an explicit Referrer-Policy, such as strict-origin-when-cross-origin.",
+          "hop": 0
+        },
+        {
+          "id": "HEADER.CORS",
+          "title": "Public cross-origin response",
+          "status": "info",
+          "severity": "info",
+          "evidence": "Access-Control-Allow-Origin: *",
+          "recommendation": "This can be intentional for public resources; it does not establish a data exposure vulnerability.",
+          "hop": 0
+        }
+      ],
+      "error": null,
+      "score": 100,
+      "grade": "A"
+    }
+  ],
+  "comparison": {
+    "regressions": [
+      {
+        "target": "https://app.example.test/",
+        "rule": "COOKIE.HTTPONLY",
+        "hop": 0,
+        "before": "pass",
+        "after": "warn"
+      },
+      {
+        "target": "https://app.example.test/",
+        "rule": "COOKIE.NONE_SECURE",
+        "hop": 0,
+        "before": "pass",
+        "after": "fail"
+      },
+      {
+        "target": "https://app.example.test/",
+        "rule": "COOKIE.SECURE",
+        "hop": 0,
+        "before": "pass",
+        "after": "fail"
+      },
+      {
+        "target": "https://app.example.test/",
+        "rule": "CSP.BROAD_SCRIPT",
+        "hop": 0,
+        "before": "pass",
+        "after": "warn"
+      }
+    ],
+    "improvements": [],
+    "new_targets": [],
+    "removed_targets": [],
+    "incomparable": []
+  }
+}
