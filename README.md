@@ -153,6 +153,20 @@ Use on systems you own or are authorized to assess. See [methodology](docs/metho
 
 Include a reproducible fixture and a focused regression test when changing a rule. Keep transport verification enabled, preserve duplicate response headers, and document any new report fields. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## GitHub package
+
+The container is built and tested before publication. It runs as a non-root user; no credentials or Git history are included.
+
+```sh
+docker run --rm ghcr.io/r4venrudy/rudy-web-audit:latest --help
+docker run --rm ghcr.io/r4venrudy/rudy-web-audit:latest https://example.com
+```
+
+For reports, mount a writable directory at `/data` and use the CLI's output options. On Linux, pass `--user "$(id -u):$(id -g)"` when writing to a bind mount owned by your user.
+
+Packages use `latest` and immutable `sha-<full commit SHA>` tags. Use the SHA tag or registry digest for a fixed version. The workflow also checks package builds on pull requests without publishing them.
+
+
 ## License
 
 [MIT](LICENSE) · Part of the [r4venrudy](https://github.com/r4venrudy) tool collection.

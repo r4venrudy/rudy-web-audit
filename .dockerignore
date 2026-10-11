@@ -1,0 +1,9 @@
+**
+!Dockerfile
+!pyproject.toml
+!README.md
+!LICENSE
+!rudy_web_audit/
+!rudy_web_audit/**
+!tests/
+!tests/**
