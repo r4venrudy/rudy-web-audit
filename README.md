@@ -164,7 +164,13 @@ docker run --rm ghcr.io/r4venrudy/rudy-web-audit:latest https://example.com
 
 For reports, mount a writable directory at `/data` and use the CLI's output options. On Linux, pass `--user "$(id -u):$(id -g)"` when writing to a bind mount owned by your user.
 
-Packages use `latest` and immutable `sha-<full commit SHA>` tags. Use the SHA tag or registry digest for a fixed version. The workflow also checks package builds on pull requests without publishing them.
+Packages use `latest` and commit-specific `sha-<full commit SHA>` tags. Tags can move when a workflow is rerun, so pin the registry digest when you need the exact same image. All published images currently target Linux x86-64 (`linux/amd64`).
+
+```sh
+# Inspect the published digest, then pin the value returned by the registry.
+docker buildx imagetools inspect ghcr.io/r4venrudy/rudy-web-audit:latest
+# docker run --rm ghcr.io/r4venrudy/rudy-web-audit@sha256:<digest> --help
+``` The workflow also checks package builds on pull requests without publishing them.
 
 
 ## License
