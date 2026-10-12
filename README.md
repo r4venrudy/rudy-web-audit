@@ -84,6 +84,19 @@ The SARIF contains web observations with stable fingerprints. These are remote-r
 
 ## CLI reference
 
+### Shared native evidence bundles
+
+`--format evidence` uses the [Rudy Evidence](https://github.com/r4venrudy/rudy-evidence) C++ core through its Python/C ABI binding. It exports warn/fail checks with scoped fingerprints, recognized-secret redaction and an integrity digest. Existing text/JSON/HTML/SARIF formats remain standard-library only.
+
+Build/install Rudy Evidence following its README, install its binding from that checkout with `python -m pip install ./bindings/python`, and set `RUDY_EVIDENCE_LIBRARY` to the absolute trusted native-library path. The binding is also available directly from its pinned GitHub source:
+
+```sh
+python -m pip install 'git+https://github.com/r4venrudy/rudy-evidence.git@9a7dc387b9d265de1f98e3b356c8f0d58bb67caa#subdirectory=bindings/python'
+python -m rudy_web_audit https://example.com --format evidence --evidence-scope site:example -o findings.evidence.json
+```
+
+Use a stable scope for the same site/project across runs. The optional `--evidence-library` explicitly selects the library path. Missing bindings, invalid paths and missing scopes fail before scanning. Legacy `--baseline` comparisons use JSON/HTML; compare evidence bundles with the SDK's `diff` command. Scan failures still return exit code 2, and finding gates still apply. A bundle's unkeyed digest is not a signature, and redaction is limited to the SDK's documented patterns.
+
 | Option | Default | Purpose |
 | :--- | :--- | :--- |
 | `--targets-file FILE` | — | Read additional targets from UTF-8 text |

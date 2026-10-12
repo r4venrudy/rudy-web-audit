@@ -39,7 +39,9 @@ def parser():
     result.add_argument("--timeout", type=timeout_value, default=10, help="Socket-operation timeout in seconds (default: 10).")
     result.add_argument("--max-redirects", type=bounded_int(0, 10), default=5)
     result.add_argument("--allow-private", action="store_true", help="Allow destinations on your own private/local network.")
-    result.add_argument("--format", choices=("text", "json", "html", "sarif"), default="text")
+    result.add_argument("--format", choices=("text", "json", "html", "sarif", "evidence"), default="text")
+    result.add_argument("--evidence-scope", help="Stable project/site namespace; required for evidence output.")
+    result.add_argument("--evidence-library", help="Absolute trusted Rudy Evidence shared-library path (or RUDY_EVIDENCE_LIBRARY).")
     result.add_argument("--output", "-o", help="Write the report to this file.")
     result.add_argument("--baseline", help="Compare with an earlier JSON report.")
     result.add_argument("--fail-on", choices=("low", "medium", "high", "critical", "regression"), help="Return exit code 1 for matching findings.")
@@ -51,6 +53,19 @@ def main(argv=None):
     arg_parser = parser()
     args = arg_parser.parse_args(argv)
     try:
+        evidence = None
+        if args.format == "evidence":
+            if not args.evidence_scope or not args.evidence_scope.strip():
+                raise ValueError("--format evidence requires a stable --evidence-scope.")
+            if args.baseline:
+                raise ValueError("Evidence output does not include legacy baseline comparisons; export JSON or compare evidence bundles separately.")
+            try:
+                from rudy_evidence import Evidence
+            except ImportError as exc:
+                raise ValueError("Install the optional Rudy Evidence Python binding; see the README.") from exc
+            evidence = Evidence(args.evidence_library)
+        elif args.evidence_scope or args.evidence_library:
+            raise ValueError("Evidence options require --format evidence.")
         targets = list(args.targets)
         if args.targets_file:
             path = Path(args.targets_file)
@@ -69,7 +84,8 @@ def main(argv=None):
         data = document(audits)
         if baseline:
             data["comparison"] = compare(baseline, data)
-        rendered = (json.dumps(data, indent=2, ensure_ascii=True) if args.format == "json" else
+        rendered = (json.dumps(evidence.normalize("rudy-web-audit", args.evidence_scope, data), indent=2, ensure_ascii=True) if evidence else
+                    json.dumps(data, indent=2, ensure_ascii=True) if args.format == "json" else
                     json.dumps(sarif(data), indent=2, ensure_ascii=True) if args.format == "sarif" else
                     html_report(data) if args.format == "html" else text_report(data))
         if args.output:
