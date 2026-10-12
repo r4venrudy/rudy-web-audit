@@ -91,7 +91,7 @@ The SARIF contains web observations with stable fingerprints. These are remote-r
 Build/install Rudy Evidence following its README, install its binding from that checkout with `python -m pip install ./bindings/python`, and set `RUDY_EVIDENCE_LIBRARY` to the absolute trusted native-library path. The binding is also available directly from its pinned GitHub source:
 
 ```sh
-python -m pip install 'git+https://github.com/r4venrudy/rudy-evidence.git@b2e8e36#subdirectory=bindings/python'
+python -m pip install 'git+https://github.com/r4venrudy/rudy-evidence.git@1ed87e37aed0bafc7595e06514367d4c89136137#subdirectory=bindings/python'
 python -m rudy_web_audit https://example.com --format evidence --evidence-scope site:example -o findings.evidence.json
 ```
 

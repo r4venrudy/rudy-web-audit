@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           repository: r4venrudy/rudy-evidence
-          ref: b2e8e361a89ddfa44142bdb49c6ea540c0e209f9
+          ref: 1ed87e37aed0bafc7595e06514367d4c89136137
           path: .sdk
       - uses: actions/setup-python@v7
         with:
