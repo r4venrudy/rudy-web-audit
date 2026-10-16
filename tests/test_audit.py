@@ -257,6 +257,12 @@ class ReportTests(unittest.TestCase):
         self.assertEqual(len(compare(self.data, newer)["regressions"]), 1)
         self.assertEqual(len(compare(newer, self.data)["improvements"]), 1)
 
+    def test_text_report_lists_regressions(self):
+        newer = copy.deepcopy(self.data)
+        newer["targets"][0]["checks"][0]["status"] = "fail"
+        newer["comparison"] = compare(self.data, newer)
+        self.assertIn("REGRESSION https://example.com/ HEADER.CSP: pass -> fail", text_report(newer))
+
     def test_failed_scan_not_treated_as_improvement(self):
         newer = copy.deepcopy(self.data)
         newer["targets"][0]["error"] = "timeout"

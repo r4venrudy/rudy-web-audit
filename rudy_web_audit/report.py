@@ -112,6 +112,14 @@ def text_report(data: dict) -> str:
     if "comparison" in data:
         diff = data["comparison"]
         lines.append(f"Baseline: {len(diff['regressions'])} regressions, {len(diff['improvements'])} improvements, {len(diff['incomparable'])} incomparable targets.")
+        # the counts alone send people to the JSON to find out what changed
+        for item in diff["regressions"]:
+            hop = f" (hop {item['hop']})" if item["hop"] is not None else ""
+            lines.append(f"  REGRESSION {item['target']} {item['rule']}{hop}: {item['before']} -> {item['after']}")
+        for name in diff["new_targets"]:
+            lines.append(f"  NEW TARGET {name}")
+        for name in diff["removed_targets"]:
+            lines.append(f"  REMOVED    {name}")
     # Never let untrusted header/cookie names write terminal control sequences.
     return "\n".join(lines).translate({code: None for code in range(32) if code not in (9, 10)})
 
