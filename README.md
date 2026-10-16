@@ -99,7 +99,7 @@ Use a stable scope for the same site/project across runs. The optional `--eviden
 
 | Option | Default | Purpose |
 | :--- | :--- | :--- |
-| `--targets-file FILE` | — | Read additional targets from UTF-8 text |
+| `--targets-file FILE` | — | Read additional targets from UTF-8 text; `-` reads them from standard input |
 | `--workers N` | `4` | Concurrent targets, from 1 to 16 |
 | `--timeout SECONDS` | `10` | Socket-operation timeout, from 0.1 to 60 |
 | `--max-redirects N` | `5` | Follow up to 0–10 redirects |

@@ -235,6 +235,13 @@ class IntegrationTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertEqual(json.loads(output.getvalue())["schema_version"], 1)
 
+    def test_cli_targets_from_stdin(self):
+        output = io.StringIO()
+        with patch("sys.stdin", io.StringIO(f"# local fixture\n{self.base}/good\n\n")), redirect_stdout(output):
+            code = main(["--targets-file", "-", "--allow-private", "--format", "json"])
+        self.assertEqual(code, 0)
+        self.assertEqual(len(json.loads(output.getvalue())["targets"]), 1)
+
     def test_cli_network_error_is_exit_two(self):
         with redirect_stdout(io.StringIO()):
             self.assertEqual(main([self.base]), 2)

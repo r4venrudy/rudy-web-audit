@@ -34,7 +34,7 @@ def timeout_value(value):
 def parser():
     result = argparse.ArgumentParser(description="HTTP/TLS hardening evidence, offline reports and regression detection.")
     result.add_argument("targets", nargs="*", help="URL or hostname; HTTPS is the default.")
-    result.add_argument("--targets-file", help="UTF-8 text file, one target per line. # comments supported.")
+    result.add_argument("--targets-file", help="UTF-8 text file, one target per line, or - for standard input. # comments supported.")
     result.add_argument("--workers", type=bounded_int(1, 16), default=4)
     result.add_argument("--timeout", type=timeout_value, default=10, help="Socket-operation timeout in seconds (default: 10).")
     result.add_argument("--max-redirects", type=bounded_int(0, 10), default=5)
@@ -68,10 +68,18 @@ def main(argv=None):
             raise ValueError("Evidence options require --format evidence.")
         targets = list(args.targets)
         if args.targets_file:
-            path = Path(args.targets_file)
-            if path.stat().st_size > 1_000_000:
-                raise ValueError("Target file exceeds the 1 MB limit.")
-            targets += [line.strip() for line in path.read_text(encoding="utf-8-sig").splitlines()
+            if args.targets_file == "-":
+                # e.g. `subfinder -d example.com | rudy-web-audit --targets-file -`
+                text = sys.stdin.read(1_000_001)
+                if len(text) > 1_000_000:
+                    raise ValueError("Target input exceeds the 1 MB limit.")
+                text = text.lstrip("\ufeff")
+            else:
+                path = Path(args.targets_file)
+                if path.stat().st_size > 1_000_000:
+                    raise ValueError("Target file exceeds the 1 MB limit.")
+                text = path.read_text(encoding="utf-8-sig")
+            targets += [line.strip() for line in text.splitlines()
                         if line.strip() and not line.lstrip().startswith("#")]
         targets = list(dict.fromkeys(targets))
         if not targets or len(targets) > 200:
