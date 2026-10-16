@@ -139,10 +139,17 @@ def inspect_hop(hop: Hop, index: int, final: bool) -> list[Check]:
         effective or "No explicit recognized policy; browser defaults vary.",
         "Choose an explicit Referrer-Policy, such as strict-origin-when-cross-origin.")
 
+    credentials = any(value.strip().lower() == "true" for value in headers(hop, "access-control-allow-credentials"))
     for value in headers(hop, "access-control-allow-origin"):
-        if value.strip() == "*":
+        origin = value.strip()
+        if origin == "*":
             add("HEADER.CORS", "Public cross-origin response", "info", "info", "Access-Control-Allow-Origin: *",
                 "This can be intentional for public resources; it does not establish a data exposure vulnerability.")
+        elif origin.lower() == "null" and credentials:
+            # sandboxed iframes and file:// pages send Origin: null, so any site can obtain that origin
+            add("CORS.NULL_ORIGIN", "Credentialed CORS for the null origin", "warn", "medium",
+                "Access-Control-Allow-Origin: null with Access-Control-Allow-Credentials: true",
+                "Do not allow the null origin for credentialed requests; list the specific trusted origins instead.")
     if headers(hop, "server") or headers(hop, "x-powered-by"):
         add("HEADER.DISCLOSURE", "Technology banner exposed", "info", "info", "Server or X-Powered-By header present.",
             "Consider removing unnecessary version banners. A banner alone is not a vulnerability.")

@@ -118,6 +118,12 @@ class RuleTests(unittest.TestCase):
         hop = page([("Referrer-Policy", "no-referrer, unsafe-url, unknown")])
         self.assertEqual(check(hop, "HEADER.REFERRER").status, "warn")
 
+    def test_credentialed_null_origin(self):
+        hop = page([("Access-Control-Allow-Origin", "null"), ("Access-Control-Allow-Credentials", "true")])
+        self.assertEqual(check(hop, "CORS.NULL_ORIGIN").status, "warn")
+        hop = page([("Access-Control-Allow-Origin", "null")])
+        self.assertFalse(any(item.id == "CORS.NULL_ORIGIN" for item in inspect_hop(hop, 0, True)))
+
     def test_score_deduplicates_rules(self):
         finding = Check("X", "title", "fail", "high", "evidence")
         self.assertEqual(score_checks([finding, finding]), (80, "B"))
