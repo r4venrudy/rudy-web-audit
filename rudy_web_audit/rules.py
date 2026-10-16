@@ -121,7 +121,10 @@ def inspect_hop(hop: Hop, index: int, final: bool) -> list[Check]:
             for directive in ("script-src", "script-src-elem"):
                 sources = policy.get(directive, policy.get("script-src", policy.get("default-src", [])))
                 dynamic = any(item.startswith(("'nonce-", "'sha256-", "'sha384-", "'sha512-")) for item in sources)
-                risky = sorted(set(sources) & {"*", "http:", "https:", "data:", "'unsafe-eval'"})
+                # with 'strict-dynamic' and a nonce or hash, CSP3 browsers ignore host and scheme sources;
+                # "https:" is the usual fallback for older browsers there, not a broad allowance
+                broad = {"'unsafe-eval'"} if dynamic and "'strict-dynamic'" in sources else {"*", "http:", "https:", "data:", "'unsafe-eval'"}
+                risky = sorted(set(sources) & broad)
                 if "'unsafe-inline'" in sources and not dynamic:
                     risky.append("'unsafe-inline'")
                 if risky:

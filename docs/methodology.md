@@ -17,7 +17,7 @@ The request is GET with a declared user agent. Only response headers are consume
 
 HSTS passes the long-term heuristic at a one-year max-age. A positive shorter policy is a warning; missing, invalid or zero-age policies fail the heuristic. The tool does not check browser preload membership or recommend includeSubDomains without evaluating the application.
 
-CSP report-only headers do not enforce restrictions. Script checks use first-occurrence directive parsing and source fallback. The inline-script heuristic recognizes nonce/hash sources. CSP grammar and the interactions of multiple enforcing policies are not fully simulated; broad sources are review observations rather than exploit claims.
+CSP report-only headers do not enforce restrictions. Script checks use first-occurrence directive parsing and source fallback. The inline-script heuristic recognizes nonce/hash sources. With `'strict-dynamic'` plus a nonce or hash, host and scheme sources such as `https:` are treated as legacy fallbacks, since CSP3 browsers ignore them. CSP grammar and the interactions of multiple enforcing policies are not fully simulated; broad sources are review observations rather than exploit claims.
 
 HttpOnly may be intentionally absent on application-readable cookies. CORS wildcard origins and technology banners are informational. The tool does not infer a data leak from a public CORS response.
 

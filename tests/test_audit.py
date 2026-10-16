@@ -106,6 +106,12 @@ class RuleTests(unittest.TestCase):
         hop = page([("Content-Security-Policy", "script-src 'nonce-abc' 'unsafe-inline'")])
         self.assertFalse(any(item.id == "CSP.BROAD_SCRIPT" for item in inspect_hop(hop, 0, True)))
 
+    def test_strict_dynamic_fallback_sources_not_flagged(self):
+        hop = page([("Content-Security-Policy", "script-src 'nonce-abc' 'strict-dynamic' https: 'unsafe-inline'")])
+        self.assertFalse(any(item.id == "CSP.BROAD_SCRIPT" for item in inspect_hop(hop, 0, True)))
+        hop = page([("Content-Security-Policy", "script-src 'strict-dynamic' https:")])
+        self.assertTrue(any(item.id == "CSP.BROAD_SCRIPT" for item in inspect_hop(hop, 0, True)))
+
     def test_unsafe_eval_flagged_with_nonce(self):
         hop = page([("Content-Security-Policy", "script-src 'nonce-abc' 'unsafe-eval'")])
         self.assertTrue(any(item.id == "CSP.BROAD_SCRIPT" for item in inspect_hop(hop, 0, True)))
