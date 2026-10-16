@@ -13,7 +13,7 @@ The request is GET with a declared user agent. Only response headers are consume
 | `HEADER.*` | HSTS, enforcing script CSP, framing, nosniff, referrer policy, CORS and technology banners |
 | `CSP.*` | Broad script-source constructs in individual enforcing policies, and nonce policies without `base-uri` |
 | `CORS.*` | Credentialed access granted to the `null` origin, which sandboxed frames and local files can claim |
-| `COOKIE.*` | Parsing, Secure, HttpOnly, SameSite, `None`/Secure, prefix constraints and plaintext setting |
+| `COOKIE.*` | Parsing, Secure, HttpOnly, SameSite, `None`/Secure, prefix constraints, plaintext setting and (informational) subdomain-wide `Domain` scope |
 
 HSTS passes the long-term heuristic at a one-year max-age. A positive shorter policy is a warning; missing, invalid or zero-age policies fail the heuristic. The tool does not check browser preload membership or recommend includeSubDomains without evaluating the application.
 

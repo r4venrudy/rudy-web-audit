@@ -77,6 +77,11 @@ def inspect_hop(hop: Hop, index: int, final: bool) -> list[Check]:
         if name.startswith("__Host-") and (not cookie["secure"] or not https or cookie["path"] != "/" or cookie["domain"]):
             add("COOKIE.PREFIX", "Invalid __Host- cookie", "fail", "medium", name,
                 "Use HTTPS, Secure, Path=/, and no Domain attribute for __Host- cookies.")
+        if cookie["domain"] and not name.startswith("__Host-"):
+            # a Domain attribute widens the cookie to every subdomain, including ones run by other teams
+            add("COOKIE.DOMAIN", "Cookie shared with subdomains", "info", "info",
+                f"{name}: Domain={cookie['domain'].lstrip('.')}",
+                "Omit Domain unless subdomains must receive this cookie; a host-only cookie limits exposure.")
         if not https:
             add("COOKIE.HTTP", "Cookie set over plaintext HTTP", "fail", "high", name,
                 "Set cookies only after the redirect to HTTPS.")

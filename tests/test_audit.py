@@ -124,6 +124,13 @@ class RuleTests(unittest.TestCase):
         hop = page([("Set-Cookie", "__Host-session=x; Secure; Path=/; Domain=example.com")])
         self.assertEqual(check(hop, "COOKIE.PREFIX").status, "fail")
 
+    def test_cookie_domain_is_reported(self):
+        hop = page([("Set-Cookie", "sid=x; Secure; HttpOnly; SameSite=Lax; Domain=.example.com")])
+        result = check(hop, "COOKIE.DOMAIN")
+        self.assertEqual((result.status, result.evidence), ("info", "sid: Domain=example.com"))
+        hop = page([("Set-Cookie", "sid=x; Secure; HttpOnly; SameSite=Lax")])
+        self.assertFalse(any(item.id == "COOKIE.DOMAIN" for item in inspect_hop(hop, 0, True)))
+
     def test_multiple_cookies_and_expires_comma(self):
         hop = page([("Set-Cookie", "one=a; Expires=Wed, 21 Oct 2030 07:28:00 GMT; Secure; HttpOnly; SameSite=Lax"),
                     ("Set-Cookie", "two=b; Secure; HttpOnly; SameSite=Strict")])
