@@ -118,6 +118,13 @@ def inspect_hop(hop: Hop, index: int, final: bool) -> list[Check]:
                 if risky:
                     add("CSP.BROAD_SCRIPT", "Broad CSP script sources", "warn", "medium", f"{directive}: {', '.join(risky)}",
                         "Review broad script sources. Multiple CSP policies intersect; this is a policy-level heuristic.")
+        # base-uri does not fall back to default-src; an injected <base> can point nonce-trusted relative
+        # script paths at another host
+        nonced = [policy for policy in enforcing
+                  if any(item.startswith("'nonce-") for item in policy.get("script-src", policy.get("default-src", [])))]
+        if nonced and not any(policy.get("base-uri") for policy in nonced):
+            add("CSP.BASE_URI", "Nonce policy without base-uri", "warn", "low", "script nonces used; base-uri not set",
+                "Add base-uri 'none' (or 'self') so an injected <base> element cannot redirect relative script URLs.")
         framed = any(policy.get("frame-ancestors") and "*" not in policy["frame-ancestors"] for policy in enforcing)
         xfo = [value.strip().upper() for value in headers(hop, "x-frame-options")]
         add("HEADER.FRAMING", "Framing protection", "pass" if framed or any(v in {"DENY", "SAMEORIGIN"} for v in xfo) else "warn",

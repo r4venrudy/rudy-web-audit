@@ -124,6 +124,12 @@ class RuleTests(unittest.TestCase):
         hop = page([("Access-Control-Allow-Origin", "null")])
         self.assertFalse(any(item.id == "CORS.NULL_ORIGIN" for item in inspect_hop(hop, 0, True)))
 
+    def test_nonce_policy_needs_base_uri(self):
+        hop = page([("Content-Security-Policy", "script-src 'nonce-abc'")])
+        self.assertEqual(check(hop, "CSP.BASE_URI").status, "warn")
+        hop = page([("Content-Security-Policy", "script-src 'nonce-abc'; base-uri 'none'")])
+        self.assertFalse(any(item.id == "CSP.BASE_URI" for item in inspect_hop(hop, 0, True)))
+
     def test_score_deduplicates_rules(self):
         finding = Check("X", "title", "fail", "high", "evidence")
         self.assertEqual(score_checks([finding, finding]), (80, "B"))

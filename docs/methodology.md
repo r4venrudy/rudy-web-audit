@@ -11,7 +11,7 @@ The request is GET with a declared user agent. Only response headers are consume
 | `TLS.*` | Verified connection metadata and certificate remaining lifetime |
 | `HTTP.*` | Final transport, status, cross-host redirects and transport downgrade |
 | `HEADER.*` | HSTS, enforcing script CSP, framing, nosniff, referrer policy, CORS and technology banners |
-| `CSP.*` | Broad script-source constructs in individual enforcing policies |
+| `CSP.*` | Broad script-source constructs in individual enforcing policies, and nonce policies without `base-uri` |
 | `CORS.*` | Credentialed access granted to the `null` origin, which sandboxed frames and local files can claim |
 | `COOKIE.*` | Parsing, Secure, HttpOnly, SameSite, `None`/Secure, prefix constraints and plaintext setting |
 
