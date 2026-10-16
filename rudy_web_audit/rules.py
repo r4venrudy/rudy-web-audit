@@ -130,8 +130,13 @@ def inspect_hop(hop: Hop, index: int, final: bool) -> list[Check]:
             add("CSP.BASE_URI", "Nonce policy without base-uri", "warn", "low", "script nonces used; base-uri not set",
                 "Add base-uri 'none' (or 'self') so an injected <base> element cannot redirect relative script URLs.")
         framed = any(policy.get("frame-ancestors") and "*" not in policy["frame-ancestors"] for policy in enforcing)
-        xfo = [value.strip().upper() for value in headers(hop, "x-frame-options")]
-        protected = framed or any(v in {"DENY", "SAMEORIGIN"} for v in xfo)
+        # values from repeated headers or "DENY, DENY" in one header form a set; per the HTML standard a
+        # single value must be DENY/SAMEORIGIN, and conflicting values that include a known one block framing
+        xfo = [token.strip().upper() for value in headers(hop, "x-frame-options") for token in value.split(",")]
+        distinct = set(xfo)
+        xfo_blocks = (distinct <= {"DENY", "SAMEORIGIN"} if len(distinct) == 1 else
+                      bool(distinct & {"DENY", "SAMEORIGIN", "ALLOWALL"}))
+        protected = framed or xfo_blocks
         # ALLOW-FROM and other values are ignored by current browsers, so the page can still be framed
         evidence = ("Restrictive frame-ancestors or X-Frame-Options found." if protected else
                     f"X-Frame-Options: {xfo[0]} is not recognized by current browsers." if xfo else "No framing restriction found.")

@@ -92,6 +92,13 @@ class RuleTests(unittest.TestCase):
         self.assertEqual(result.status, "warn")
         self.assertIn("not recognized", result.evidence)
 
+    def test_repeated_frame_options(self):
+        for headers, status in (([("X-Frame-Options", "DENY, DENY")], "pass"),
+                                ([("X-Frame-Options", "DENY"), ("X-Frame-Options", "SAMEORIGIN")], "pass"),
+                                ([("X-Frame-Options", "ALLOW-FROM https://a.example")], "warn")):
+            with self.subTest(headers=headers):
+                self.assertEqual(check(page(headers), "HEADER.FRAMING").status, status)
+
     def test_frame_ancestors_none_is_protection(self):
         self.assertEqual(check(page([("Content-Security-Policy", "frame-ancestors 'none'")]), "HEADER.FRAMING").status, "pass")
 
