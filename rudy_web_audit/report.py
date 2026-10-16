@@ -1,6 +1,8 @@
+import base64
 import hashlib
 import html
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -157,7 +159,6 @@ def html_report(data: dict) -> str:
     script = "document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));document.querySelectorAll('tr[data-status]').forEach(r=>{r.hidden=b.dataset.filter==='issues'?!['warn','fail'].includes(r.dataset.status):b.dataset.filter==='pass'?r.dataset.status!=='pass':false})}));"
     replacements = {"__VERSION__": esc(__version__), "__TOTAL__": str(total), "__ISSUES__": str(issues),
                     "__COMPARISON__": comparison, "__CARDS__": "".join(cards), "__TIME__": esc(data["generated_at"]),
-                    "__SCRIPT_HASH__": __import__('base64').b64encode(hashlib.sha256(script.encode()).digest()).decode(), "__SCRIPT__": script}
+                    "__SCRIPT_HASH__": base64.b64encode(hashlib.sha256(script.encode()).digest()).decode(), "__SCRIPT__": script}
     # Replace template tokens in a single pass so untrusted values cannot create new tokens.
-    import re
     return re.sub("|".join(map(re.escape, replacements)), lambda match: replacements[match.group()], template)
