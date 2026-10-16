@@ -127,8 +127,11 @@ def inspect_hop(hop: Hop, index: int, final: bool) -> list[Check]:
                 "Add base-uri 'none' (or 'self') so an injected <base> element cannot redirect relative script URLs.")
         framed = any(policy.get("frame-ancestors") and "*" not in policy["frame-ancestors"] for policy in enforcing)
         xfo = [value.strip().upper() for value in headers(hop, "x-frame-options")]
-        add("HEADER.FRAMING", "Framing protection", "pass" if framed or any(v in {"DENY", "SAMEORIGIN"} for v in xfo) else "warn",
-            "medium", "Restrictive frame-ancestors or X-Frame-Options found." if framed or xfo else "No framing restriction found.",
+        protected = framed or any(v in {"DENY", "SAMEORIGIN"} for v in xfo)
+        # ALLOW-FROM and other values are ignored by current browsers, so the page can still be framed
+        evidence = ("Restrictive frame-ancestors or X-Frame-Options found." if protected else
+                    f"X-Frame-Options: {xfo[0]} is not recognized by current browsers." if xfo else "No framing restriction found.")
+        add("HEADER.FRAMING", "Framing protection", "pass" if protected else "warn", "medium", evidence,
             "Use CSP frame-ancestors or X-Frame-Options where the page should not be embedded.")
     else:
         add("HEADER.CSP", "HTML-specific policy checks", "info", "info", "Response is not declared as HTML; script and framing checks skipped.")

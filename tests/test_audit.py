@@ -83,6 +83,11 @@ class RuleTests(unittest.TestCase):
     def test_frame_ancestors_wildcard_is_not_protection(self):
         self.assertEqual(check(page([("Content-Security-Policy", "frame-ancestors *")]), "HEADER.FRAMING").status, "warn")
 
+    def test_allow_from_is_not_protection(self):
+        result = check(page([("X-Frame-Options", "ALLOW-FROM https://partner.example")]), "HEADER.FRAMING")
+        self.assertEqual(result.status, "warn")
+        self.assertIn("not recognized", result.evidence)
+
     def test_frame_ancestors_none_is_protection(self):
         self.assertEqual(check(page([("Content-Security-Policy", "frame-ancestors 'none'")]), "HEADER.FRAMING").status, "pass")
 
