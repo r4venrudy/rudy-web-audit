@@ -73,6 +73,10 @@ class RuleTests(unittest.TestCase):
             with self.subTest(value=value):
                 self.assertEqual(check(page([("Strict-Transport-Security", value)]), "HEADER.HSTS").status, status)
 
+    def test_hsts_evidence_lists_directives(self):
+        result = check(page([("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")]), "HEADER.HSTS")
+        self.assertEqual(result.evidence, "max-age=63072000; includeSubDomains; preload")
+
     def test_report_only_does_not_enforce(self):
         result = check(page([("Content-Security-Policy-Report-Only", "default-src 'self'")]), "HEADER.CSP")
         self.assertEqual(result.status, "fail")
