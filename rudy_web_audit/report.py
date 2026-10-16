@@ -107,9 +107,12 @@ def text_report(data: dict) -> str:
             lines.append(f"  hop {index}: HTTP {hop['status']}  {hop['url']}  [{hop['ip']}]  {hop['elapsed_ms']} ms")
         if target["error"]:
             lines.append("  ERROR " + target["error"])
-        for check in target["checks"]:
-            if check["status"] in {"warn", "fail"}:
-                lines.append(f"  {check['status'].upper():4} [{check['severity']}] {check['id']}: {check['evidence']}")
+        # failures before warnings, then by severity, so the top lines are the ones to fix first
+        order = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
+        issues = sorted((check for check in target["checks"] if check["status"] in {"warn", "fail"}),
+                        key=lambda check: (check["status"] != "fail", order.get(check["severity"], 5)))
+        for check in issues:
+            lines.append(f"  {check['status'].upper():4} [{check['severity']}] {check['id']}: {check['evidence']}")
         lines.append("")
     if "comparison" in data:
         diff = data["comparison"]

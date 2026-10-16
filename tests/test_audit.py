@@ -275,6 +275,13 @@ class ReportTests(unittest.TestCase):
         self.assertEqual(len(compare(self.data, newer)["regressions"]), 1)
         self.assertEqual(len(compare(newer, self.data)["improvements"]), 1)
 
+    def test_text_report_orders_failures_first(self):
+        data = document([Audit("https://example.com/", "id", checks=[
+            Check("A.LOW", "a", "warn", "low", "x"), Check("B.HIGH", "b", "fail", "high", "x"),
+            Check("C.MED", "c", "warn", "medium", "x"), Check("D.MED", "d", "fail", "medium", "x")], score=50, grade="F")])
+        lines = [line.split()[2].rstrip(":") for line in text_report(data).splitlines() if line.startswith("  WARN") or line.startswith("  FAIL")]
+        self.assertEqual(lines, ["B.HIGH", "D.MED", "C.MED", "A.LOW"])
+
     def test_text_report_lists_regressions(self):
         newer = copy.deepcopy(self.data)
         newer["targets"][0]["checks"][0]["status"] = "fail"
