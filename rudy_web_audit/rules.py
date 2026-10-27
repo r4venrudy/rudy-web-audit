@@ -111,7 +111,7 @@ def inspect_hop(hop: Hop, index: int, final: bool) -> list[Check]:
     html = "text/html" in content_type or "application/xhtml+xml" in content_type
     enforcing = csp_policies(headers(hop, "content-security-policy"))
     if html:
-        restricted = any(policy.get("script-src") or policy.get("default-src") for policy in enforcing)
+        restricted = any("script-src" in policy or "default-src" in policy for policy in enforcing)
         report_only = bool(headers(hop, "content-security-policy-report-only"))
         add("HEADER.CSP", "Enforced script policy", "pass" if restricted else "fail", "medium",
             "Enforcing script/default source policy found." if restricted else
@@ -134,10 +134,10 @@ def inspect_hop(hop: Hop, index: int, final: bool) -> list[Check]:
         # script paths at another host
         nonced = [policy for policy in enforcing
                   if any(item.startswith("'nonce-") for item in policy.get("script-src", policy.get("default-src", [])))]
-        if nonced and not any(policy.get("base-uri") for policy in nonced):
+        if nonced and not any("base-uri" in policy for policy in nonced):
             add("CSP.BASE_URI", "Nonce policy without base-uri", "warn", "low", "script nonces used; base-uri not set",
                 "Add base-uri 'none' (or 'self') so an injected <base> element cannot redirect relative script URLs.")
-        framed = any(policy.get("frame-ancestors") and "*" not in policy["frame-ancestors"] for policy in enforcing)
+        framed = any("frame-ancestors" in policy and "*" not in policy["frame-ancestors"] for policy in enforcing)
         # values from repeated headers or "DENY, DENY" in one header form a set; per the HTML standard a
         # single value must be DENY/SAMEORIGIN, and conflicting values that include a known one block framing
         xfo = [token.strip().upper() for value in headers(hop, "x-frame-options") for token in value.split(",")]

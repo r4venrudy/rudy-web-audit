@@ -67,6 +67,13 @@ class URLTests(unittest.TestCase):
 
 
 class RuleTests(unittest.TestCase):
+    def test_empty_csp_source_lists_still_enforce_restrictions(self):
+        self.assertEqual(check(page([("Content-Security-Policy", "script-src;")]), "HEADER.CSP").status, "pass")
+        self.assertEqual(check(page([("Content-Security-Policy", "default-src;")]), "HEADER.CSP").status, "pass")
+        self.assertEqual(check(page([("Content-Security-Policy", "frame-ancestors;")]), "HEADER.FRAMING").status, "pass")
+        checks = inspect_hop(page([("Content-Security-Policy", "script-src 'nonce-dGVzdA=='; base-uri;")]), 0, True)
+        self.assertFalse(any(item.id == "CSP.BASE_URI" for item in checks))
+
     def test_hsts_values(self):
         for value, status in (("max-age=31536000; includeSubDomains", "pass"), ("max-age=100", "warn"),
                               ("max-age=0", "fail"), ("max-age=oops", "fail"), ('max-age="31536000"', "pass")):
