@@ -67,6 +67,11 @@ class URLTests(unittest.TestCase):
 
 
 class RuleTests(unittest.TestCase):
+    def test_long_hsts_decimal_does_not_abort_analysis(self):
+        for digits in ("9" * 5000, "0" * 5000 + "31536000"):
+            with self.subTest(prefix=digits[:8]):
+                self.assertEqual(check(page([("Strict-Transport-Security", "max-age=" + digits)]), "HEADER.HSTS").status, "pass")
+
     def test_empty_csp_source_lists_still_enforce_restrictions(self):
         self.assertEqual(check(page([("Content-Security-Policy", "script-src;")]), "HEADER.CSP").status, "pass")
         self.assertEqual(check(page([("Content-Security-Policy", "default-src;")]), "HEADER.CSP").status, "pass")

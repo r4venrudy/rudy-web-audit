@@ -97,14 +97,18 @@ def inspect_hop(hop: Hop, index: int, final: bool) -> list[Check]:
 
     if https:
         values = headers(hop, "strict-transport-security")
-        match = re.search(r"(?:^|;)\s*max-age\s*=\s*\"?(\d+)\"?\s*(?:;|$)", values[0], re.I) if values else None
-        age = int(match.group(1)) if match else 0
+        match = re.search(r"(?:^|;)\s*max-age\s*=\s*\"?([0-9]+)\"?\s*(?:;|$)", values[0], re.I) if values else None
+        digits = (match.group(1).lstrip("0") or "0") if match else "0"
+        # Only comparisons to the one-year threshold need a numeric value.
+        # Keep oversized decimals out of Python's integer conversion limit.
+        age = int(digits) if len(digits) <= 18 else 10 ** 18
+        age_label = f"max-age={age}" if len(digits) <= 18 else "max-age>=1000000000000000000"
         # the directives decide whether subdomains are covered and whether preload submission is possible
         directives = {item.strip().lower() for item in values[0].split(";")} if values else set()
         flags = "".join(f"; {name}" for name, key in (("includeSubDomains", "includesubdomains"), ("preload", "preload"))
                         if key in directives)
         add("HEADER.HSTS", "HTTP Strict Transport Security", "pass" if age >= 31536000 else "warn" if age else "fail",
-            "medium", f"max-age={age}{flags}" if match else "Missing, invalid, or disabled HSTS.",
+            "medium", f"{age_label}{flags}" if match else "Missing, invalid, or disabled HSTS.",
             "Set a positive HSTS max-age; one year is a common long-term goal. Assess subdomains before includeSubDomains.")
 
     content_type = ", ".join(headers(hop, "content-type")).lower()
