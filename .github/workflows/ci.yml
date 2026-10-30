@@ -2,6 +2,10 @@ name: Tests
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
+# Replace stale PR checks; keep push, release, and manual runs independent.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   test:
     strategy:
